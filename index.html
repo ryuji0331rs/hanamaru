@@ -6775,41 +6775,24 @@ function rpStartMic() {
     return;
   }
 
-  var inputEl = document.getElementById('rp-input');
-  var baseText = inputEl.value;
-  var latestInterim = '';
+  _rpMicActive = true;
+  var btn = document.getElementById('rp-mic-btn');
+  var status = document.getElementById('rp-mic-status');
+  if (btn) { btn.style.background = '#FDECEA'; btn.style.borderColor = 'var(--rd)'; btn.textContent = '⏹'; }
+  if (status) { status.textContent = '🎤 話してください'; status.style.display = 'block'; }
 
-  function startRecognition() {
+  function startOnce() {
     if (!_rpMicActive) return;
     var sr = new SpeechRecognition();
     sr.lang = 'ja-JP';
     sr.continuous = false;
-    sr.interimResults = true; // 途中結果を受け取る
-    sr.maxAlternatives = 1;
-
+    sr.interimResults = false;
     _rpRecognition = sr;
 
     sr.onresult = function(e) {
-      var interim = '';
-      var final = '';
-      // baseTextを毎回inputElから取得（送信後リセット対応）
-      baseText = inputEl.value.replace(latestInterim, '');
-      for (var i = 0; i < e.results.length; i++) {
-        var t = e.results[i][0].transcript;
-        if (e.results[i].isFinal) {
-          final += rpFixMicText(t);
-        } else {
-          interim += t;
-        }
-      }
-      if (final) {
-        baseText += final;
-        latestInterim = '';
-      } else {
-        latestInterim = interim;
-      }
-      inputEl.value = baseText + latestInterim;
-      inputEl.scrollTop = inputEl.scrollHeight;
+      var text = rpFixMicText(e.results[0][0].transcript);
+      var inp = document.getElementById('rp-input');
+      if (inp) inp.value += text;
     };
 
     sr.onerror = function(e) {
@@ -6820,31 +6803,13 @@ function rpStartMic() {
     };
 
     sr.onend = function() {
-      // 確定していない途中テキストを確定させる
-      if (latestInterim) {
-        baseText = inputEl.value.replace(latestInterim, '') + rpFixMicText(latestInterim);
-        latestInterim = '';
-        inputEl.value = baseText;
-      } else {
-        // inputの現在値をbaseTextに同期
-        baseText = inputEl.value;
-      }
-      // アクティブなら再起動
-      if (_rpMicActive) {
-        setTimeout(startRecognition, 300);
-      }
+      if (_rpMicActive) setTimeout(startOnce, 300);
     };
 
     try { sr.start(); } catch(e) {}
   }
 
-  _rpMicActive = true;
-  var btn = document.getElementById('rp-mic-btn');
-  var status = document.getElementById('rp-mic-status');
-  if (btn) { btn.style.background = '#FDECEA'; btn.style.borderColor = 'var(--rd)'; btn.textContent = '⏹'; }
-  if (status) { status.textContent = '🎤 今すぐ話してください！'; status.style.display = 'block'; }
-
-  startRecognition();
+  startOnce();
 }
 
 function rpStopMic() {
