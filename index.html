@@ -6763,64 +6763,53 @@ function rpToggleMic() {
 function rpStartMic() {
   var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
-    alert('お使いのブラウザは音声入力に対応していません。\nChromeをお試しください。');
+    alert('お使いのブラウザは音声入力に対応していません。');
     return;
   }
 
-  _rpRecognition = new SpeechRecognition();
-  _rpRecognition.lang = 'ja-JP';
-  _rpRecognition.continuous = true;       // 話し続けても認識継続
-  _rpRecognition.interimResults = true;   // 途中結果も表示
-  _rpRecognition.maxAlternatives = 1;
-
   var inputEl = document.getElementById('rp-input');
-  var baseText = inputEl.value; // 既存テキストを保持
+  var baseText = inputEl.value;
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
-  _rpRecognition.onstart = function() {
-    _rpMicActive = true;
-    var btn = document.getElementById('rp-mic-btn');
-    var status = document.getElementById('rp-mic-status');
-    if (btn) { btn.style.background = '#FDECEA'; btn.style.borderColor = 'var(--rd)'; btn.textContent = '⏹'; }
-    if (status) status.style.display = 'block';
-  };
+  function startRecognition() {
+    _rpRecognition = new SpeechRecognition();
+    _rpRecognition.lang = 'ja-JP';
+    _rpRecognition.continuous = false; // iOSはfalse必須、他もfalseで再起動方式に統一
+    _rpRecognition.interimResults = false;
+    _rpRecognition.maxAlternatives = 1;
 
-  _rpRecognition.onresult = function(e) {
-    var interim = '';
-    var final = '';
-    for (var i = e.resultIndex; i < e.results.length; i++) {
-      var t = e.results[i][0].transcript;
-      if (e.results[i].isFinal) {
-        final += rpFixMicText(t);
-      } else {
-        interim += t;
+    _rpRecognition.onresult = function(e) {
+      var text = e.results[0][0].transcript;
+      baseText += rpFixMicText(text);
+      inputEl.value = baseText;
+      inputEl.scrollTop = inputEl.scrollHeight;
+    };
+
+    _rpRecognition.onerror = function(e) {
+      if (e.error === 'not-allowed') {
+        alert('マイクの使用が許可されていません。');
+        rpStopMic();
       }
-    }
-    if (final) baseText += final;
-    // 確定テキスト＋途中テキストを表示
-    inputEl.value = baseText + interim;
-    inputEl.scrollTop = inputEl.scrollHeight;
-  };
+      // no-speech等は無視して継続
+    };
 
-  _rpRecognition.onerror = function(e) {
-    if (e.error === 'no-speech') return; // 無音は無視
-    if (e.error === 'not-allowed') {
-      alert('マイクの使用が許可されていません。\nブラウザの設定でマイクを許可してください。');
-    }
-    rpStopMic();
-  };
+    _rpRecognition.onend = function() {
+      if (_rpMicActive) {
+        // 少し間を置いて再起動
+        setTimeout(startRecognition, 200);
+      }
+    };
 
-  _rpRecognition.onend = function() {
-    // continuous=trueでも接続が切れた場合、アクティブなら再接続
-    if (_rpMicActive) {
-      try { _rpRecognition.start(); } catch(e) {}
-    }
-  };
-
-  try {
-    _rpRecognition.start();
-  } catch(e) {
-    alert('音声認識の開始に失敗しました: ' + e.message);
+    try { _rpRecognition.start(); } catch(e) {}
   }
+
+  _rpMicActive = true;
+  var btn = document.getElementById('rp-mic-btn');
+  var status = document.getElementById('rp-mic-status');
+  if (btn) { btn.style.background = '#FDECEA'; btn.style.borderColor = 'var(--rd)'; btn.textContent = '⏹'; }
+  if (status) status.style.display = 'block';
+
+  startRecognition();
 }
 
 function rpStopMic() {
