@@ -6683,8 +6683,12 @@ async function rpAiSearch() {
         body: JSON.stringify({ contents:[{role:'user',parts:[{text:prompt}]}], generationConfig:{temperature:0.2} }) }
     );
     var data = await res.json();
+    if (data.error) throw new Error('APIエラー: ' + data.error.message);
     var raw = (data.candidates?.[0]?.content?.parts?.[0]?.text || '').replace(/```json|```/g,'').trim();
-    var parsed = JSON.parse(raw);
+    // JSON部分だけ抽出（前後の余分なテキストを除去）
+    var jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('JSONが返ってきませんでした。APIレスポンス: ' + raw.slice(0,100));
+    var parsed = JSON.parse(jsonMatch[0]);
     var matches = parsed.matches || [];
 
     if (matches.length === 0) {
