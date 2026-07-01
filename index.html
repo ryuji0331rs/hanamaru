@@ -6795,8 +6795,9 @@ function rpStartMic() {
 
     _rpRecognition.onend = function() {
       if (_rpMicActive) {
-        // 少し間を置いて再起動
-        setTimeout(startRecognition, 200);
+        // 少し間を置いて再起動（iOSは長めに）
+        var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        setTimeout(startRecognition, isIOS ? 500 : 200);
       }
     };
 
