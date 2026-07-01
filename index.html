@@ -6756,9 +6756,16 @@ function rpFixMicText(text) {
 function rpToggleMic() {
   if (_rpMicActive) {
     rpStopMic();
-  } else {
-    rpStartMic();
+    return;
   }
+  // iOS Safari以外は非対応
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  var isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+  if (isIOS && !isSafari) {
+    alert('音声入力はiOSのSafariのみ対応しています。\nSafariで開き直してください。');
+    return;
+  }
+  rpStartMic();
 }
 
 function rpStartMic() {
