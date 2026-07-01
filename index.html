@@ -6777,49 +6777,67 @@ function rpStartMic() {
 
   var inputEl = document.getElementById('rp-input');
   var baseText = inputEl.value;
-  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  var latestInterim = '';
 
   function startRecognition() {
-    _rpRecognition = new SpeechRecognition();
-    _rpRecognition.lang = 'ja-JP';
-    _rpRecognition.continuous = false; // iOSはfalse必須、他もfalseで再起動方式に統一
-    _rpRecognition.interimResults = false;
-    _rpRecognition.maxAlternatives = 1;
+    if (!_rpMicActive) return;
+    var sr = new SpeechRecognition();
+    sr.lang = 'ja-JP';
+    sr.continuous = false;
+    sr.interimResults = true; // 途中結果を受け取る
+    sr.maxAlternatives = 1;
 
-    _rpRecognition.onresult = function(e) {
-      var text = e.results[0][0].transcript;
-      baseText += rpFixMicText(text);
-      inputEl.value = baseText;
+    _rpRecognition = sr;
+
+    sr.onresult = function(e) {
+      var interim = '';
+      var final = '';
+      for (var i = 0; i < e.results.length; i++) {
+        var t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) {
+          final += rpFixMicText(t);
+        } else {
+          interim += t;
+        }
+      }
+      if (final) {
+        baseText += final;
+        latestInterim = '';
+      } else {
+        latestInterim = interim;
+      }
+      inputEl.value = baseText + latestInterim;
       inputEl.scrollTop = inputEl.scrollHeight;
-      // 認識されたらメッセージを切り替え
-      var status = document.getElementById('rp-mic-status');
-      if (status) status.textContent = '🔴 録音中… 話し終わったら⏹を押してください';
     };
 
-    _rpRecognition.onerror = function(e) {
+    sr.onerror = function(e) {
       if (e.error === 'not-allowed') {
         alert('マイクの使用が許可されていません。');
         rpStopMic();
       }
-      // no-speech等は無視して継続
     };
 
-    _rpRecognition.onend = function() {
+    sr.onend = function() {
+      // 確定していない途中テキストを確定させる
+      if (latestInterim) {
+        baseText += rpFixMicText(latestInterim);
+        latestInterim = '';
+        inputEl.value = baseText;
+      }
+      // アクティブなら再起動
       if (_rpMicActive) {
-        // 少し間を置いて再起動（iOSは長めに）
-        var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        setTimeout(startRecognition, isIOS ? 500 : 200);
+        setTimeout(startRecognition, 300);
       }
     };
 
-    try { _rpRecognition.start(); } catch(e) {}
+    try { sr.start(); } catch(e) {}
   }
 
   _rpMicActive = true;
   var btn = document.getElementById('rp-mic-btn');
   var status = document.getElementById('rp-mic-status');
   if (btn) { btn.style.background = '#FDECEA'; btn.style.borderColor = 'var(--rd)'; btn.textContent = '⏹'; }
-  if (status) status.style.display = 'block';
+  if (status) { status.textContent = '🎤 今すぐ話してください！'; status.style.display = 'block'; }
 
   startRecognition();
 }
