@@ -14,6 +14,7 @@ body{font-family:-apple-system,'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;b
 .app{}
 .main{}
 .pg{display:none;padding:24px 28px 48px;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
 .pg.on[data-page="chat"]{display:flex;flex-direction:column;min-height:100vh;}
 .pg.on{display:block;}
 .home-title{font-size:22px;font-weight:700;margin-bottom:6px;}
@@ -1514,7 +1515,7 @@ body{font-family:-apple-system,'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;b
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
         <div style="font-size:12px;color:var(--mu);">Shift+Enterで改行 / Enterで送信</div>
-        <div id="rp-mic-status" style="font-size:12px;color:var(--rd);display:none;">🔴 録音中…（もう一度押すと停止）</div>
+        <div id="rp-mic-status" style="font-size:13px;font-weight:700;color:var(--rd);display:none;animation:blink 1s infinite;">🎤 今すぐ話してください！</div>
       </div>
     </div>
 
@@ -6783,6 +6784,9 @@ function rpStartMic() {
       baseText += rpFixMicText(text);
       inputEl.value = baseText;
       inputEl.scrollTop = inputEl.scrollHeight;
+      // 認識されたらメッセージを切り替え
+      var status = document.getElementById('rp-mic-status');
+      if (status) status.textContent = '🔴 録音中… 話し終わったら⏹を押してください';
     };
 
     _rpRecognition.onerror = function(e) {
