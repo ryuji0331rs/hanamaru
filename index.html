@@ -8549,39 +8549,43 @@ function rpStartMic() {
   var btn = document.getElementById('rp-mic-btn');
   var status = document.getElementById('rp-mic-status');
 
-  navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+  navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
     _rpMicActive = true;
-
-    // MIMEタイプ：Safari対応
-    var mimeType = 'audio/webm';
-    if (!MediaRecorder.isTypeSupported('audio/webm')) {
-      mimeType = 'audio/mp4'; // Safari
-    }
-
-    _rpMediaRecorder = new MediaRecorder(stream, { mimeType: mimeType });
     _rpAudioChunks = [];
 
+    // Safari/iOS対応：使えるMIMEを順番に試す
+    var mimeType = '';
+    var candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4', ''];
+    for (var i = 0; i < candidates.length; i++) {
+      if (candidates[i] === '' || MediaRecorder.isTypeSupported(candidates[i])) {
+        mimeType = candidates[i];
+        break;
+      }
+    }
+
+    var options = mimeType ? { mimeType: mimeType } : {};
+    _rpMediaRecorder = new MediaRecorder(stream, options);
+    var actualMime = _rpMediaRecorder.mimeType || 'audio/webm';
+
     _rpMediaRecorder.ondataavailable = function(e) {
-      if (e.data.size > 0) _rpAudioChunks.push(e.data);
+      if (e.data && e.data.size > 0) _rpAudioChunks.push(e.data);
     };
 
     _rpMediaRecorder.onstop = function() {
-      // ストリーム停止
       stream.getTracks().forEach(function(t) { t.stop(); });
-
-      if (!_rpMicActive) return; // キャンセル時
-      var blob = new Blob(_rpAudioChunks, { type: mimeType });
-      rpTranscribeWithGemini(blob, mimeType);
+      if (_rpAudioChunks.length === 0) return;
+      var blob = new Blob(_rpAudioChunks, { type: actualMime });
+      rpTranscribeWithGemini(blob, actualMime);
     };
 
-    _rpMediaRecorder.start();
+    // timeslice指定で確実にデータが取れるようにする
+    _rpMediaRecorder.start(500);
 
-    // UI更新
     if (btn) { btn.style.background = '#FDECEA'; btn.style.borderColor = 'var(--rd)'; btn.textContent = '⏹'; }
-    if (status) status.style.display = 'block';
+    if (status) { status.textContent = '🔴 録音中…（もう一度押すと停止）'; status.style.display = 'block'; }
 
   }).catch(function(err) {
-    alert('マイクの使用が許可されていません。\nブラウザの設定でマイクを許可してください。');
+    alert('マイクが使用できません。\nブラウザの設定でマイクを許可してください。\n(' + err.message + ')');
   });
 }
 
@@ -8607,7 +8611,11 @@ async function rpTranscribeWithGemini(blob, mimeType) {
     reader.readAsDataURL(blob);
     reader.onload = async function() {
       var base64 = reader.result.split(',')[1];
-      var apiMime = mimeType === 'audio/mp4' ? 'audio/mp4' : 'audio/webm';
+      // Gemini APIが受け付けるMIMEに正規化
+      var apiMime = 'audio/webm';
+      if (mimeType.includes('mp4')) apiMime = 'audio/mp4';
+      else if (mimeType.includes('ogg')) apiMime = 'audio/ogg';
+      else if (mimeType.includes('webm')) apiMime = 'audio/webm';
 
       var res = await fetch(
         'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + key,
@@ -8647,13 +8655,14 @@ async function rpTranscribeWithGemini(blob, mimeType) {
 
 function rpStopMic() {
   _rpMicActive = false;
-  if (_rpMediaRecorder && _rpMediaRecorder.state === 'recording') {
+  if (_rpMediaRecorder && _rpMediaRecorder.state !== 'inactive') {
     try { _rpMediaRecorder.stop(); } catch(e) {}
   }
   _rpMediaRecorder = null;
-  // UIは rpTranscribeWithGemini 完了後に戻る
+  var btn = document.getElementById('rp-mic-btn');
   var status = document.getElementById('rp-mic-status');
-  if (status) status.textContent = '⏳ 音声を認識中…（もう一度押すと停止）';
+  if (btn) { btn.textContent = '⏳'; btn.style.background = '#FFF8E1'; btn.style.borderColor = '#F5A623'; }
+  if (status) { status.textContent = '⏳ 音声を認識中…'; }
 }
 
 var _rpTTSEnabled = false;
