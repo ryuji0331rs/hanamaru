@@ -592,6 +592,19 @@ body{font-family:-apple-system,'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;b
 
 
 
+  <!-- モード切替バー -->
+  <div id="chat-mode-bar" style="background:#F4F6FB;border-bottom:1.5px solid var(--bd);padding:8px 16px;display:flex;gap:6px;flex-shrink:0;overflow-x:auto;">
+    <button class="chat-mode-btn active" data-mode="general" onclick="setChatMode('general',this)" style="display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;border:1.5px solid var(--nv);background:var(--nv);color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;">🤖 汎用</button>
+    <button class="chat-mode-btn" data-mode="assess" onclick="setChatMode('assess',this)" style="display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;border:1.5px solid var(--bd);background:#fff;color:var(--tx);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">🔍 査定</button>
+    <button class="chat-mode-btn" data-mode="service" onclick="setChatMode('service',this)" style="display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;border:1.5px solid var(--bd);background:#fff;color:var(--tx);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">😊 接客</button>
+    <button class="chat-mode-btn" data-mode="legal" onclick="setChatMode('legal',this)" style="display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;border:1.5px solid var(--bd);background:#fff;color:var(--tx);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">⚖️ 法務</button>
+    <button class="chat-mode-btn" data-mode="training" onclick="setChatMode('training',this)" style="display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;border:1.5px solid var(--bd);background:#fff;color:var(--tx);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">📚 研修</button>
+  </div>
+  <!-- モード説明 -->
+  <div id="chat-mode-desc" style="background:#EEF4FF;padding:7px 16px;font-size:12px;color:#185FA5;flex-shrink:0;border-bottom:1px solid #C8D8F0;">
+    🤖 <strong>汎用モード</strong>：ロープレ・マニュアル・価格表から幅広く回答します
+  </div>
+
   <!-- メッセージエリア -->
   <div id="chat-messages" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;background:var(--bg);min-height:0;">
     <div id="chat-welcome" style="text-align:center;padding:32px 16px;color:var(--mu);">
@@ -602,7 +615,7 @@ body{font-family:-apple-system,'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;b
         💡 <strong>Gemini APIキー（無料）が必要です</strong><br>
         <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--gr);font-weight:600;">aistudio.google.com/apikey</a> で取得→「送信」ボタンを押すと入力できます
       </div>
-      <div style="display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto;">
+      <div class="suggest-area" style="display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto;">
         <button class="chat-suggest" onclick="sendSuggestion(this)">💰 貴金属の査定ポイントを教えて</button>
         <button class="chat-suggest" onclick="sendSuggestion(this)">⌚ 動かないロレックスの対応方法は？</button>
         <button class="chat-suggest" onclick="sendSuggestion(this)">💬 他店比較されたときの返し方は？</button>
@@ -4270,6 +4283,76 @@ function rpBackToSelect() {
 // ===== AI CHAT =====
 var chatHistory = [];
 var chatApiKey = '';
+var _chatMode = 'general';
+
+var _chatModeConfig = {
+  general: {
+    label: '🤖 汎用モード',
+    desc: 'ロープレ・マニュアル・価格表から幅広く回答します',
+    persona: 'あなたは買取専門店「華丸」のAIアシスタントです。スタッフの質問に対して、ツール内データを最優先に参照し、簡潔・実践的に回答してください。',
+    style: '回答は3〜5文以内。番号リストや長い前置きは使わず、すぐに使える言葉で。口語的で温かみある語尾（〜ですよ、〜ますね）で答えてください。',
+    suggests: ['💰 貴金属の査定ポイントを教えて', '⌚ 動かないロレックスの対応方法は？', '💬 他店比較されたときの返し方は？', '💴 JCBギフトカードの買取価格は？', '📖 クレーム対応の基本フローを教えて']
+  },
+  assess: {
+    label: '🔍 査定モード',
+    desc: '商品の査定ポイント・相場・確認事項を専門的に教えます',
+    persona: 'あなたは買取専門店「華丸」のベテラン査定士AIです。商品の査定に特化した専門アドバイザーとして回答してください。',
+    style: '査定時の確認ポイント・状態確認方法・相場感・NG判断基準を具体的に答えてください。「真贋確認→状態確認→相場確認→金額提示」の流れを意識して。数字・型番・ブランド名は正確に。',
+    suggests: ['💎 ダイヤモンドの4Cって何を見ればいい？', '🥇 K18とK10の見分け方は？', '⌚ ロレックスの真贋チェックポイントは？', '📷 カメラレンズの状態確認方法を教えて', '👜 ヴィトンの刻印の見方を教えて']
+  },
+  service: {
+    label: '😊 接客モード',
+    desc: 'お客様への声がけ・説明トーク・クレーム対応を教えます',
+    persona: 'あなたは買取専門店「華丸」の接客トレーナーAIです。実際にお客様に話すような自然な言葉・トーク例を中心に回答してください。',
+    style: '実際にスタッフが話す「口語のセリフ」を中心に答えてください。「〜というお客様には→こう言う」という形式が理想的。共感ファーストで、正論より関係構築を優先したトークを提案してください。',
+    suggests: ['😊 値引き交渉されたときの返し方は？', '🤝 初来店のお客様への最初の声がけは？', '📉 「思ったより安い」と言われたときは？', '🔄 他店と比較されたときのトークを教えて', '😤 怒っているお客様への対応方法は？']
+  },
+  legal: {
+    label: '⚖️ 法務モード',
+    desc: '古物営業法・コンプライアンス・禁止事項を確認できます',
+    persona: 'あなたは買取専門店「華丸」の法務コンプライアンス担当AIです。古物営業法・景品表示法・個人情報保護法などの観点から正確に回答してください。',
+    style: '法的根拠を明示し、「OKな行為」「NGな行為」を明確に区別して答えてください。リスクがある内容は必ず「専門家（弁護士・古物商組合）に確認を」と付け加えてください。曖昧な場合は曖昧と正直に伝えること。',
+    suggests: ['📋 本人確認書類は何が必要？', '🚫 未成年からの買取はどう対応する？', '🔄 クーリングオフの対応方法は？', '⚠️ 景品表示法違反になる広告表現は？', '📸 なぜ商品写真を撮るの？（古物台帳）']
+  },
+  training: {
+    label: '📚 研修モード',
+    desc: '業務知識・接客スキル・商品知識を学習形式で教えます',
+    persona: 'あなたは買取専門店「華丸」の研修担当AIトレーナーです。新人スタッフが楽しく・わかりやすく学べるよう、丁寧に教えてください。',
+    style: '「なぜそうするのか」の理由も含めて説明してください。専門用語には必ず説明を添えて。「覚えるコツ」「よくある間違い」「テストポイント」なども積極的に教えてください。学習者が理解できたか確認する質問も最後に入れると◎。',
+    suggests: ['🌟 買取業務の基本の流れを教えて', '💡 K18・Pt950って何？基礎から教えて', '📝 古物台帳の書き方を教えて', '🎯 ロープレ前に覚えるべきことは？', '❓ 査定士になるための勉強方法は？']
+  }
+};
+
+function setChatMode(mode, btn) {
+  _chatMode = mode;
+  // ボタンのスタイル切替
+  document.querySelectorAll('.chat-mode-btn').forEach(function(b) {
+    b.style.background = '#fff';
+    b.style.color = 'var(--tx)';
+    b.style.borderColor = 'var(--bd)';
+  });
+  btn.style.background = 'var(--nv)';
+  btn.style.color = '#fff';
+  btn.style.borderColor = 'var(--nv)';
+  // 説明文更新
+  var cfg = _chatModeConfig[mode];
+  var descEl = document.getElementById('chat-mode-desc');
+  if (descEl) {
+    descEl.innerHTML = cfg.label.split(' ')[0] + ' <strong>' + cfg.label.split(' ').slice(1).join(' ') + '</strong>：' + cfg.desc;
+  }
+  // サジェスト更新
+  var welcomeEl = document.getElementById('chat-welcome');
+  if (welcomeEl) {
+    var suggestArea = welcomeEl.querySelector('.suggest-area');
+    if (suggestArea && cfg.suggests) {
+      suggestArea.innerHTML = cfg.suggests.map(function(s) {
+        return '<button class="chat-suggest" onclick="sendSuggestion(this)">' + s + '</button>';
+      }).join('');
+    }
+  }
+  // 履歴クリア（モード変更時）
+  clearChat();
+}
 
 function initChat() {
   var key = localStorage.getItem('hanamaru_gemini_key') || '';
@@ -4489,17 +4572,14 @@ function buildSystemPrompt(question) {
     return [item.cat, item.row.customer, item.row.background||'', item.row.talk, item.row.point||''].join(' ');
   }, 5);
 
-  var kb = 'あなたは買取専門店「華丸」のAIアシスタントです。\n\n';
-  kb += '【回答ルール】\n';
+  var cfg = _chatModeConfig[_chatMode] || _chatModeConfig['general'];
+  var kb = cfg.persona + '\n\n';
+  kb += '【回答スタイル】\n' + cfg.style + '\n\n';
+  kb += '【共通ルール】\n';
   kb += '1. 以下のツール内データを最優先で参照して回答する\n';
   kb += '2. データ不足時のみ一般知識で補完し「ツールに情報がないため一般知識で補足します」と前置きする\n';
-  kb += '3. 回答は短く・3〜5文以内・実際に使える言葉で\n';
-  kb += '4. 番号リスト・見出し・長い前置きは使わない\n';
-  kb += '5. 複数のフロー・用語・トークがヒットした場合、それらを単純に貼り合わせず、一つの自然な会話の流れとして統合して書き直す\n';
-  kb += '8. 切り返しトークのデータを参照した場合、そのトークをそのままコピーせず、お客様への語りかけとして自然な会話体（口語）に言い換えて答える\n';
-  kb += '9. 「〜です。〜ます。」の硬い語尾より「〜ですよ。〜ますよ。〜ますね。」などの温かみある口語に寄せる\n';
-  kb += '6. 元データの断定的な決め台詞（例：そちらで売られるのが正解です等）をそのまま使う場合は、直前に必ず当店としての誠実な姿勢を示す一文を添え、結論だけが浮かないようにする\n';
-  kb += '7. 異なる場面・異なるデータソース由来の文を一文に無理やり繋げない。論理的に同じ話の流れになるように、必要なら一部表現を言い換える\n\n';
+  kb += '3. 複数のデータがヒットした場合、単純に貼り合わせず自然な流れに統合する\n';
+  kb += '4. 切り返しトークはそのままコピーせず、口語に言い換える\n\n';
 
   if (relatedFlows.length > 0) {
     kb += '【関連フロー（ツール内データ）】\n';
