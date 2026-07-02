@@ -1521,7 +1521,7 @@ body{font-family:-apple-system,'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;b
           style="flex:1;font-size:15px;padding:11px 14px;border:1.5px solid var(--bd);border-radius:10px;outline:none;font-family:inherit;resize:none;line-height:1.6;"
           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();rpSend();}"
           onfocus="this.style.borderColor='var(--nv)'" onblur="this.style.borderColor='var(--bd)'"></textarea>
-        <button onclick="rpToggleMic()" id="rp-mic-btn" title="音声入力"
+        <button id="rp-mic-btn" title="音声入力"
           style="height:48px;width:48px;background:#fff;color:var(--nv);border:1.5px solid var(--bd);border-radius:10px;font-size:20px;cursor:pointer;flex-shrink:0;transition:all 0.2s;">🎤</button>
         <button onclick="rpSend()" id="rp-send-btn"
           style="height:48px;padding:0 20px;background:var(--nv);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap;">送信</button>
@@ -3807,6 +3807,17 @@ var _rpFilterType = 'all';
 var _rpIsFinished = false;
 
 function initRoleplay() {
+  // iOS Safari対応：getUserMediaはユーザー直接タップから呼ぶ必要がある
+  var micBtn = document.getElementById('rp-mic-btn');
+  if (micBtn) {
+    micBtn.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      rpToggleMic();
+    }, { passive: false });
+    micBtn.addEventListener('click', function(e) {
+      rpToggleMic();
+    });
+  }
   renderRpScenarios();
 }
 
