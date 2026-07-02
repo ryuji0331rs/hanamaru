@@ -4341,18 +4341,8 @@ function setChatMode(mode, btn) {
   if (descEl) {
     descEl.innerHTML = cfg.label.split(' ')[0] + ' <strong>' + cfg.label.split(' ').slice(1).join(' ') + '</strong>：' + cfg.desc;
   }
-  // サジェスト更新
-  var welcomeEl = document.getElementById('chat-welcome');
-  if (welcomeEl) {
-    var suggestArea = welcomeEl.querySelector('.suggest-area');
-    if (suggestArea && cfg.suggests) {
-      suggestArea.innerHTML = cfg.suggests.map(function(s) {
-        return '<button class="chat-suggest" onclick="sendSuggestion(this)">' + s + '</button>';
-      }).join('');
-    }
-  }
-  // 履歴クリア（モード変更時）
-  clearChat();
+  // 履歴クリア＆サジェスト更新（モード変更時・確認なし）
+  _resetChatSilent();
 }
 
 function initChat() {
@@ -4384,30 +4374,33 @@ function resetGeminiKey() {
   initChat();
 }
 
-function clearChat() {
-  if (!confirm('会話履歴をクリアしますか？')) return;
+function _buildWelcomeHtml(mode) {
+  var cfg = _chatModeConfig[mode || _chatMode] || _chatModeConfig['general'];
+  var suggests = (cfg.suggests || []).map(function(s) {
+    return '<button class="chat-suggest" onclick="sendSuggestion(this)">' + s + '</button>';
+  }).join('');
+  return '<div style="font-size:40px;margin-bottom:12px;">🤖</div>' +
+    '<div style="font-size:17px;font-weight:700;color:var(--nv);margin-bottom:8px;">華丸 AIアシスタント</div>' +
+    '<div style="font-size:14px;line-height:1.8;margin-bottom:16px;">ロープレ・マニュアル・金券価格表の<br>知識をもとに質問に答えます。</div>' +
+    '<div style="font-size:13px;color:var(--gr);background:var(--gr-bg);border:1px solid #A8D5B8;border-radius:8px;padding:10px 14px;margin-bottom:16px;line-height:1.7;">💡 <strong>Gemini APIキー（無料）が必要です</strong><br><a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--gr);font-weight:600;">aistudio.google.com/apikey</a> で取得 → 送信ボタンを押すと入力できます</div>' +
+    '<div class="suggest-area" style="display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto;">' + suggests + '</div>';
+}
+
+function _resetChatSilent() {
   chatHistory = [];
   var msgs = document.getElementById('chat-messages');
-  if (msgs) {
-    msgs.innerHTML = document.getElementById('chat-welcome') ? msgs.innerHTML.split('<div id="chat-welcome"')[0] : '';
-    // Re-add welcome
-    var welcome = document.createElement('div');
-    welcome.id = 'chat-welcome';
-    welcome.style.cssText = 'text-align:center;padding:32px 16px;color:var(--mu);';
-    welcome.innerHTML = '<div style="font-size:40px;margin-bottom:12px;">🤖</div>' +
-      '<div style="font-size:17px;font-weight:700;color:var(--nv);margin-bottom:8px;">華丸 AIアシスタント</div>' +
-      '<div style="font-size:14px;line-height:1.8;margin-bottom:16px;">ロープレ・マニュアル・金券価格表の<br>知識をもとに質問に答えます。</div>' +
-      '<div style="font-size:13px;color:var(--gr);background:var(--gr-bg);border:1px solid #A8D5B8;border-radius:8px;padding:10px 14px;margin-bottom:16px;line-height:1.7;">💡 <strong>Gemini APIキー（無料）が必要です</strong><br><a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--gr);font-weight:600;">aistudio.google.com/apikey</a> で取得 → 送信ボタンを押すと入力できます</div>' +
+  if (!msgs) return;
+  msgs.innerHTML = '';
+  var welcome = document.createElement('div');
+  welcome.id = 'chat-welcome';
+  welcome.style.cssText = 'text-align:center;padding:32px 16px;color:var(--mu);';
+  welcome.innerHTML = _buildWelcomeHtml();
+  msgs.appendChild(welcome);
+}
 
-
-
-      '<div style="display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto;">' +
-      '<button class="chat-suggest" onclick="sendSuggestion(this)">💰 貴金属の査定ポイントを教えて</button>' +
-      '<button class="chat-suggest" onclick="sendSuggestion(this)">⌚ 動かないロレックスの対応方法は？</button>' +
-      '<button class="chat-suggest" onclick="sendSuggestion(this)">💬 他店比較されたときの返し方は？</button>' +
-      '<button class="chat-suggest" onclick="sendSuggestion(this)">💴 JCBギフトカードの買取価格は？</button>' +
-      '<button class="chat-suggest" onclick="sendSuggestion(this)">📖 クレーム対応の基本フローを教えて</button>' +
-      '</div>';
+function clearChat() {
+  if (!confirm('会話履歴をクリアしますか？')) return;
+  _resetChatSilent();
     msgs.appendChild(welcome);
   }
 }
