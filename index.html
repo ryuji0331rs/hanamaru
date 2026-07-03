@@ -256,7 +256,13 @@ body{font-family:-apple-system,'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;b
 .s-name{font-size:16px;font-weight:700;color:var(--tx);margin-bottom:3px;}
 .s-sub{font-size:13px;color:var(--mu);}
 .mn-section{background:#fff;border:1.5px solid var(--bd);border-radius:12px;padding:20px 22px;margin-bottom:14px;}
-.gl-card{background:#fff;border:1.5px solid var(--bd);border-radius:10px;padding:14px 16px;margin-bottom:8px;}
+.gl-card{background:#fff;border:1.5px solid var(--bd);border-radius:10px;padding:0;margin-bottom:8px;overflow:hidden;cursor:pointer;transition:border-color .15s;}
+.gl-card:hover{border-color:var(--nv2);}
+.gl-card-head{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.gl-card-body{display:none;padding:0 16px 14px;font-size:14px;color:var(--mu);line-height:1.75;border-top:1px solid var(--bd);}
+.gl-card-body.open{display:block;}
+.gl-card-arrow{font-size:16px;color:var(--lt);transition:transform .2s;flex-shrink:0;}
+.gl-card-arrow.open{transform:rotate(90deg);}
 .gl-term{font-size:16px;font-weight:700;color:var(--tx);margin-bottom:4px;}
 .gl-cat{font-size:12px;color:var(--nv);font-weight:600;margin-bottom:4px;}
 .gl-desc{font-size:14px;color:var(--mu);line-height:1.6;}
@@ -3760,9 +3766,14 @@ function renderGlossary() {
     h += '<div style="font-size:13px;font-weight:700;color:var(--mu);padding:10px 0 6px;border-bottom:2px solid var(--bd);margin-bottom:8px;">' + cat + '</div>';
     groups[cat].forEach(function(g, i) {
       var isExtra = !!g.id; // extra items have an id
-      h += '<div class="glossary-card">';
-      h += '<div class="glossary-term">' + srEsc(g.term) + (isExtra ? ' <span class="badge-new">追加</span>' : '') + '</div>';
-      h += '<div class="glossary-desc">' + srEsc(g.desc) + '</div>';
+      var cardId = 'glc-' + cat.replace(/\s/g,'') + '-' + i;
+      h += '<div class="gl-card" onclick="glToggle(\'' + cardId + '\')">';
+      h += '<div class="gl-card-head">';
+      h += '<div><div class="gl-term">' + srEsc(g.term) + (isExtra ? ' <span class="badge-new">追加</span>' : '') + '</div>';
+      h += '<div class="gl-cat" style="display:none;">' + srEsc(g.cat) + '</div></div>';
+      h += '<div class="gl-card-arrow" id="arr-' + cardId + '">›</div>';
+      h += '</div>';
+      h += '<div class="gl-card-body" id="' + cardId + '">' + srEsc(g.desc) + '</div>';
       h += '</div>';
     });
     h += '<div style="margin-bottom:16px;"></div>';
@@ -3771,6 +3782,15 @@ function renderGlossary() {
 }
 
 
+
+function glToggle(id) {
+  var body = document.getElementById(id);
+  var arr = document.getElementById('arr-' + id);
+  if (!body) return;
+  var isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  if (arr) arr.classList.toggle('open', !isOpen);
+}
 
 // ===== 困ったときのフロー集 =====
 const FLOW_DATA = [
