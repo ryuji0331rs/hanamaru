@@ -1849,8 +1849,8 @@ function showViForm(v) {
     '<div class="form-row"><label class="form-lbl">タグ（カンマ区切り）</label>' +
     '<input class="form-inp" id="vi-tags" value="' + srEsc(v?v.tags:'') + '" placeholder="例：貴金属, 研修, 初心者向け"></div>' +
     '<div style="display:flex;gap:10px;margin-top:8px;">' +
-    '<button class="btn-save" onclick="saveVi()">💾 保存する</button>' +
-    '<button class="btn-cancel" onclick="cancelViForm()">キャンセル</button>' +
+    '<button type="button" class="btn-save" onclick="saveVi()">💾 保存する</button>' +
+    '<button type="button" class="btn-cancel" onclick="cancelViForm()">キャンセル</button>' +
     '</div></div>';
   document.getElementById('vi-form-area').innerHTML = h;
   document.getElementById('vi-form-area').scrollIntoView({behavior:'smooth'});
@@ -2665,11 +2665,11 @@ function clearChat() {
 
 
       '<div style="display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto;">' +
-      '<button class="chat-suggest" onclick="sendSuggestion(this)">💰 貴金属の査定ポイントを教えて</button>' +
-      '<button class="chat-suggest" onclick="sendSuggestion(this)">⌚ 動かないロレックスの対応方法は？</button>' +
-      '<button class="chat-suggest" onclick="sendSuggestion(this)">💬 他店比較されたときの返し方は？</button>' +
-      '<button class="chat-suggest" onclick="sendSuggestion(this)">💴 JCBギフトカードの買取価格は？</button>' +
-      '<button class="chat-suggest" onclick="sendSuggestion(this)">📖 クレーム対応の基本フローを教えて</button>' +
+      '<button type="button" class="chat-suggest" onclick="sendSuggestion(this)">💰 貴金属の査定ポイントを教えて</button>' +
+      '<button type="button" class="chat-suggest" onclick="sendSuggestion(this)">⌚ 動かないロレックスの対応方法は？</button>' +
+      '<button type="button" class="chat-suggest" onclick="sendSuggestion(this)">💬 他店比較されたときの返し方は？</button>' +
+      '<button type="button" class="chat-suggest" onclick="sendSuggestion(this)">💴 JCBギフトカードの買取価格は？</button>' +
+      '<button type="button" class="chat-suggest" onclick="sendSuggestion(this)">📖 クレーム対応の基本フローを教えて</button>' +
       '</div>';
     msgs.appendChild(welcome);
   }
@@ -3109,9 +3109,9 @@ function backToTalkList() {
 function initTalkCats() {
   var row = document.getElementById('talk-cat-row');
   if (!row) return;
-  var html = '<button class="cb on" id="tc-all" onclick="setTalkCat(null)">すべて（' + TALK_DATA.length + 'カテゴリ）</button>';
+  var html = '<button type="button" class="cb on" id="tc-all" onclick="setTalkCat(null)">すべて（' + TALK_DATA.length + 'カテゴリ）</button>';
   TALK_DATA.forEach(function(cat) {
-    html += '<button class="cb" id="tc-' + cat.id + '" onclick="setTalkCat(' + cat.id + ')">' + cat.cat + '（' + cat.rows.length + '件）</button>';
+    html += '<button type="button" class="cb" id="tc-' + cat.id + '" onclick="setTalkCat(' + cat.id + ')">' + cat.cat + '（' + cat.rows.length + '件）</button>';
   });
   row.innerHTML = html;
 }
@@ -3261,8 +3261,8 @@ function showGlForm(gl) {
     '<div class="form-row"><label class="form-lbl">説明 <span style="color:var(--rd);">*</span></label>' +
     '<textarea class="form-ta" id="gl-desc" rows="3" placeholder="例：金の含有率75%。残り25%は銀・銅などの合金。アクセサリーに最も多く使われる。">' + srEsc(gl ? gl.desc : '') + '</textarea></div>' +
     '<div style="display:flex;gap:10px;margin-top:8px;">' +
-    '<button class="btn-save" onclick="saveGl()">💾 保存する</button>' +
-    '<button class="btn-cancel" onclick="cancelGlForm()">キャンセル</button>' +
+    '<button type="button" class="btn-save" onclick="saveGl()">💾 保存する</button>' +
+    '<button type="button" class="btn-cancel" onclick="cancelGlForm()">キャンセル</button>' +
     '</div></div>';
   document.getElementById('gl-form-area').innerHTML = h;
   if (gl) {
@@ -3402,8 +3402,8 @@ function showFlAdminForm(fl) {
     '<div class="form-row"><label class="form-lbl">NG（やってはいけないこと）</label>' +
     '<input class="form-inp" id="fl-ng" value="' + srEsc(fl?fl.ng:'') + '" placeholder="例：お客様に「盗品では？」と言わない"></div>' +
     '<div style="display:flex;gap:10px;margin-top:8px;">' +
-    '<button class="btn-save" onclick="saveFlAdmin()">💾 保存する</button>' +
-    '<button class="btn-cancel" onclick="cancelFlForm()">キャンセル</button>' +
+    '<button type="button" class="btn-save" onclick="saveFlAdmin()">💾 保存する</button>' +
+    '<button type="button" class="btn-cancel" onclick="cancelFlForm()">キャンセル</button>' +
     '</div></div>';
   document.getElementById('fl-form-area').innerHTML = h;
   if (fl) {
@@ -3509,6 +3509,7 @@ function initFlowCats() {
   row.innerHTML = '';
   function makeBtn(label, cat) {
     var btn = document.createElement('button');
+    btn.type = 'button';
     btn.className = 'cb' + (_flowCat === cat ? ' on' : '');
     btn.textContent = label;
     btn.onclick = function() { _flowCat = cat; initFlowCats(); renderFlowList(); };
@@ -3722,6 +3723,7 @@ function initGlossaryCats() {
   row.innerHTML = '';
   function makeBtn(label, cat) {
     var btn = document.createElement('button');
+    btn.type = 'button';
     btn.className = 'cb' + (_glossaryCat === cat ? ' on' : '');
     btn.textContent = label;
     btn.onclick = function() { setGlossaryCat(cat); };
@@ -6182,8 +6184,8 @@ function showRpForm(sc) {
     '<div class="form-row"><label class="form-lbl">NG対応（1行に「NG行動|なぜダメか」の形式）</label><textarea class="form-ta" id="rp-ng" rows="4" placeholder="品物を片手で扱う|「安く買い叩かれる」と警戒される">' + esc(sc?sc.ng:'') + '</textarea></div>' +
     '<div class="form-row"><label class="form-lbl">練習課題（1行1項目）</label><textarea class="form-ta" id="rp-tasks" rows="4" placeholder="査定の所要時間を必ず伝える練習&#10;ペアで客役・店員役を交代し反復練習">' + esc(sc?sc.tasks:'') + '</textarea></div>' +
     '<div style="display:flex;gap:10px;margin-top:8px;">' +
-    '<button class="btn-save" onclick="saveRp()">💾 保存する</button>' +
-    '<button class="btn-cancel" onclick="cancelRpForm()">キャンセル</button>' +
+    '<button type="button" class="btn-save" onclick="saveRp()">💾 保存する</button>' +
+    '<button type="button" class="btn-cancel" onclick="cancelRpForm()">キャンセル</button>' +
     '</div></div>';
   document.getElementById('rp-form-area').innerHTML = html;
   document.getElementById('rp-form-area').scrollIntoView({behavior:'smooth'});
@@ -6298,7 +6300,7 @@ function renderSbMsgs() {
       '<div class="sb-text' + (line.role==='point'?' point-text':'') + '" onclick="editSbLine('+i+')" title="クリックして編集" style="cursor:pointer;">' +
         line.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') +
       '</div>' +
-      '<button class="sb-del" title="削除">✕</button>';
+      '<button type="button" class="sb-del" title="削除">✕</button>';
 
     // drag events
     row.addEventListener('dragstart', function(e) {
@@ -6491,8 +6493,8 @@ function showMnForm(mn) {
     '<div class="form-row"><label class="form-lbl">カテゴリ</label><input class="form-inp" id="mn-cat" value="' + esc(mn?mn.cat:'') + '" placeholder="例：出張買取・接客・コンプライアンス"></div>' +
     '<div class="form-row"><label class="form-lbl">内容（HTMLも使えます。見出しは &lt;h3&gt;、本文は &lt;p&gt;）</label><textarea class="form-ta" id="mn-body" rows="12" placeholder="&lt;h3&gt;見出し&lt;/h3&gt;&#10;&lt;p&gt;本文…&lt;/p&gt;">' + esc(mn?mn.body:'') + '</textarea></div>' +
     '<div style="display:flex;gap:10px;margin-top:8px;">' +
-    '<button class="btn-save" onclick="saveMn()">💾 保存する</button>' +
-    '<button class="btn-cancel" onclick="cancelMnForm()">キャンセル</button>' +
+    '<button type="button" class="btn-save" onclick="saveMn()">💾 保存する</button>' +
+    '<button type="button" class="btn-cancel" onclick="cancelMnForm()">キャンセル</button>' +
     '</div></div>';
   document.getElementById('mn-form-area').innerHTML = html;
   document.getElementById('mn-form-area').scrollIntoView({behavior:'smooth'});
@@ -6573,8 +6575,8 @@ function showPrForm(pr) {
     '</div>' +
     '<div class="form-row" style="margin-top:4px;"><label class="form-lbl">本部問い合わせ必要</label><select class="form-sel" id="pr-req" style="width:auto;"><option value="0"' + (pr&&!pr.req?' selected':'') + '>不要</option><option value="1"' + (pr&&pr.req?' selected':'') + '>要</option></select></div>' +
     '<div style="display:flex;gap:10px;margin-top:8px;">' +
-    '<button class="btn-save" onclick="savePr()">💾 保存する</button>' +
-    '<button class="btn-cancel" onclick="cancelPrForm()">キャンセル</button>' +
+    '<button type="button" class="btn-save" onclick="savePr()">💾 保存する</button>' +
+    '<button type="button" class="btn-cancel" onclick="cancelPrForm()">キャンセル</button>' +
     '</div></div>';
   document.getElementById('pr-form-area').innerHTML = html;
   document.getElementById('pr-form-area').scrollIntoView({behavior:'smooth'});
