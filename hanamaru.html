@@ -6995,13 +6995,17 @@ function renderExtraManuals() {
 if (!localStorage.getItem('hanamaru_gemini_key')) {
   // APIキーは初回入力で保存されます
 }
-document.addEventListener('DOMContentLoaded', function() {
+function initApp() {
   GP('home');
   renderExtraManuals();
-
-  // Supabase初期化
   initSupabase();
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
 // ===== ロープレ：AIシナリオ検索 =====
 // ===== Gemini Audio 音声入力 =====
