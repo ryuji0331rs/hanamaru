@@ -3,9 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <title>買取支援ツール｜華丸</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -17,8 +14,8 @@ body{font-family:-apple-system,'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;b
 .app{}
 .main{}
 .pg{display:none;padding:24px 28px 48px;}
-.pg.on.pg.on[data-page="chat"]{display:flex!important;flex-direction:column;min-height:100vh;}
-.pg.on{display:block!important;}
+.pg.on[data-page="chat"]{display:flex;flex-direction:column;min-height:100vh;}
+.pg.on{display:block;}
 .home-title{font-size:22px;font-weight:700;margin-bottom:6px;}
 .home-sub{font-size:16px;color:var(--mu);margin-bottom:24px;}
 .menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px;}
@@ -346,30 +343,20 @@ body{font-family:-apple-system,'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;b
 <script>
 // Supabase動的読み込み（失敗してもメイン機能に影響しない）
 (function() {
-  try {
-    var s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-    s.async = true;
-    s.onerror = function() { console.log('Supabase load failed - login features disabled'); };
-    s.onload = function() { if (typeof initSupabase === 'function') initSupabase(); };
-    document.head.appendChild(s);
-  } catch(e) { console.log('Supabase init error:', e); }
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  s.onerror = function() { console.log('Supabase load failed'); };
+  document.head.appendChild(s);
 })();
 </script>
 </head>
 <body>
-<script>
-// 最優先でhomeを表示（イベント待ちなし）
-document.addEventListener("DOMContentLoaded", function() {
-  if (typeof GP === "function") GP("home");
-});
-</script>
 <div class="topbar" style="display:flex;align-items:center;justify-content:space-between;"><div class="tl"><span class="mk">華</span>買取支援ツール</div>
 <button onclick="GP('admin-login')" style="background:rgba(255,255,255,.18);color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:14px;cursor:pointer;">⚙️ 管理</button>
 </div>
 
 <!-- スタッフログイン画面 -->
-<div class="pg" data-page="login" style="display:none;background:#F4F6FB;min-height:100%;">
+<div class="pg" data-page="login" style="background:#F4F6FB;min-height:100%;">
   <div style="max-width:380px;margin:0 auto;padding:60px 20px;">
     <div style="text-align:center;margin-bottom:32px;">
       <div style="font-size:44px;margin-bottom:8px;">🌸</div>
@@ -395,7 +382,7 @@ document.addEventListener("DOMContentLoaded", function() {
   </div>
 </div>
 
-<div class="pg" data-page="home" id="pg-home" style="display:block;padding:0;background:#F4F6FB;min-height:100%;">
+<div class="pg on" data-page="home" style="padding:0;background:#F4F6FB;min-height:100%;">
 
   <div style="position:relative;overflow:hidden;background:linear-gradient(160deg,#EEF2FF 0%,#E8F4FD 40%,#EDF9F4 100%);padding:36px 28px 32px;">
     <!-- スタッフバッジ -->
@@ -483,7 +470,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </div>
 
 <!-- 振り返りチェックシート -->
-<div class="pg" data-page="review" style="display:none;">
+<div class="pg" data-page="review">
   <div class="ph">
     <button class="back-btn" onclick="GP('home')" type="button">← ホームへ戻る</button>
     <div class="pt">📋 振り返りチェックシート</div>
@@ -512,15 +499,6 @@ document.addEventListener("DOMContentLoaded", function() {
       <div style="margin-bottom:14px;">
         <label style="font-size:13px;font-weight:700;color:var(--nv);display:block;margin-bottom:6px;">日付・訪問先メモ（任意）</label>
         <input type="text" id="rv-memo" placeholder="例：7/10 田中様宅・着物2点" style="width:100%;padding:10px 14px;border:1.5px solid var(--bd);border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;">
-      </div>
-      <div style="margin-bottom:14px;">
-        <label style="font-size:13px;font-weight:700;color:var(--nv);display:block;margin-bottom:6px;">今回の結果</label>
-        <div style="display:flex;gap:8px;">
-          <button type="button" class="rv-result-btn" data-val="成約" onclick="rvSetResult('成約',this)" style="flex:1;padding:8px;font-size:13px;border:1.5px solid var(--bd);border-radius:8px;background:var(--sf);color:var(--tx);cursor:pointer;font-family:inherit;">成約</button>
-          <button type="button" class="rv-result-btn" data-val="保留" onclick="rvSetResult('保留',this)" style="flex:1;padding:8px;font-size:13px;border:1.5px solid var(--bd);border-radius:8px;background:var(--sf);color:var(--tx);cursor:pointer;font-family:inherit;">保留</button>
-          <button type="button" class="rv-result-btn" data-val="不成約" onclick="rvSetResult('不成約',this)" style="flex:1;padding:8px;font-size:13px;border:1.5px solid var(--bd);border-radius:8px;background:var(--sf);color:var(--tx);cursor:pointer;font-family:inherit;">不成約</button>
-        </div>
-        <input type="hidden" id="rv-outcome" value="">
       </div>
       <div style="margin-bottom:14px;">
         <label style="font-size:13px;font-weight:700;color:var(--nv);display:block;margin-bottom:6px;">文字起こしテキスト <span style="color:var(--rd);">*</span></label>
@@ -570,36 +548,6 @@ document.addEventListener("DOMContentLoaded", function() {
             <div id="rv-compliance" style="display:flex;flex-direction:column;gap:6px;font-size:14px;"></div>
           </div>
 
-          <!-- 再訪問・アポ可能性 -->
-          <div style="padding:14px 18px;border-bottom:1px solid var(--bd);background:var(--sf);">
-            <div style="font-size:12px;font-weight:700;color:var(--nv);margin-bottom:10px;">📞 再訪問・アポ可能性チェック</div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-              <span style="font-size:12px;color:var(--mu);">今回の結果：</span>
-              <span id="rv-outcome-display" style="font-size:13px;font-weight:700;padding:3px 12px;border-radius:6px;"></span>
-            </div>
-            <div style="margin-bottom:10px;">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                <span style="font-size:12px;color:var(--mu);">再訪問の可能性</span>
-                <span id="rv-revisit-label" style="font-size:13px;font-weight:700;"></span>
-              </div>
-              <div style="background:var(--bd);border-radius:4px;height:6px;">
-                <div id="rv-revisit-bar" style="height:6px;border-radius:4px;transition:width .4s;"></div>
-              </div>
-            </div>
-            <div style="background:#fff;border:1px solid var(--bd);border-radius:8px;padding:10px 12px;margin-bottom:10px;">
-              <div style="font-size:12px;color:var(--nv);font-weight:700;margin-bottom:4px;">AIの判断理由</div>
-              <div id="rv-revisit-reason" style="font-size:13px;color:var(--mu);line-height:1.7;"></div>
-            </div>
-            <div style="margin-bottom:10px;">
-              <div style="font-size:12px;color:var(--mu);margin-bottom:6px;">未掘り起こしカテゴリ</div>
-              <div id="rv-uncovered" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
-            </div>
-            <div>
-              <div style="font-size:12px;color:var(--mu);margin-bottom:4px;">推奨アプローチ</div>
-              <div id="rv-next-action" style="font-size:13px;color:var(--tx);line-height:1.7;background:#fff;border-left:3px solid var(--nv);border-radius:0 8px 8px 0;padding:8px 12px;"></div>
-            </div>
-          </div>
-
           <!-- 次回アドバイス -->
           <div style="padding:14px 18px;">
             <div style="font-size:12px;font-weight:700;color:var(--nv);margin-bottom:8px;">📝 次回への一言アドバイス</div>
@@ -629,7 +577,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 <!-- 訪問前チェックシート -->
-<div class="pg" data-page="visit-check" style="display:none;">
+<div class="pg" data-page="visit-check">
   <div class="ph">
     <button class="back-btn" onclick="GP('home')" type="button">← ホームへ戻る</button>
     <div class="pt">📋 訪問前チェックシート</div>
@@ -744,7 +692,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 <!-- 管理画面ログイン -->
-<div class="pg" data-page="admin-login" style="display:none;">
+<div class="pg" data-page="admin-login">
   <div style="max-width:360px;margin:60px auto;">
     <div style="text-align:center;margin-bottom:28px;">
       <div style="font-size:32px;margin-bottom:8px;">⚙️</div>
@@ -770,7 +718,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </div>
 
 <!-- 管理画面メイン -->
-<div class="pg" data-page="admin" style="display:none;">
+<div class="pg" data-page="admin">
   <div class="ph">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
       <div class="pt">⚙️ 管理画面</div>
@@ -899,7 +847,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 <!-- 動画ライブラリ -->
-<div class="pg" data-page="video" style="display:none;">
+<div class="pg" data-page="video">
   <div class="ph">
     <button class="back-btn" onclick="GP('home')">← ホームへ戻る</button>
     <div class="pt">🎬 動画ライブラリ</div>
@@ -930,7 +878,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 <!-- AIチャット -->
-<div class="pg" data-page="chat" style="display:none;padding:0;flex-direction:column;">
+<div class="pg" data-page="chat" style="padding:0;flex-direction:column;">
   <!-- チャットヘッダー -->
   <div style="background:var(--nv);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0;position:sticky;top:0;z-index:10;">
     <button onclick="GP('home')" style="background:rgba(255,255,255,.18);border:none;color:#fff;padding:7px 14px;border-radius:7px;font-size:14px;cursor:pointer;">← 戻る</button>
@@ -978,7 +926,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </div>
 
 <!-- 用語集 -->
-<div class="pg" data-page="glossary" style="display:none;">
+<div class="pg" data-page="glossary">
   <div class="ph">
     <button class="back-btn" onclick="GP('home')">← ホームへ戻る</button>
     <div class="pt">📚 用語集</div>
@@ -993,7 +941,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </div>
 
 <!-- 困ったときのフロー集 -->
-<div class="pg" data-page="flow" style="display:none;">
+<div class="pg" data-page="flow">
   <div class="ph">
     <button class="back-btn" onclick="GP('home')">← ホームへ戻る</button>
     <div class="pt">🆘 困ったときのフロー集</div>
@@ -1009,7 +957,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 <!-- 法務・コンプライアンス -->
-<div class="pg" data-page="legal" style="display:none;">
+<div class="pg" data-page="legal">
   <div class="ph">
     <button class="back-btn" onclick="GP('home')">← ホームへ戻る</button>
     <div class="pt">⚖️ 法務・コンプライアンス</div>
@@ -1054,7 +1002,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </div>
 
 <!-- 金券買取価格表 -->
-<div class="pg" data-page="price" style="display:none;">
+<div class="pg" data-page="price">
   <div class="ph">
     <button class="back-btn" onclick="GP('home')">← ホームへ戻る</button>
     <div class="pt">💴 金券買取価格表</div>
@@ -1071,7 +1019,7 @@ document.addEventListener("DOMContentLoaded", function() {
   <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;"><div id="PT"></div></div>
 </div>
 
-<div class="pg" data-page="roleplay" style="display:none;">
+<div class="pg" data-page="roleplay">
   <div class="ph">
     <button class="back-btn" onclick="GP('home')">← ホームへ戻る</button>
     <div class="pt">🎭 切り返しトーク集</div>
@@ -1087,7 +1035,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </div>
 
 <!-- トーク詳細 -->
-<div class="pg" data-page="talk-detail" style="display:none;">
+<div class="pg" data-page="talk-detail">
   <div class="ph">
     <button class="back-btn" onclick="GP('roleplay')">← 一覧へ戻る</button>
     <div class="pt" id="talk-detail-title"></div>
@@ -1100,7 +1048,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </div>
 
 <!-- 接客マニュアル -->
-<div class="pg" data-page="manual" style="display:none;">
+<div class="pg" data-page="manual">
   <div class="ph">
     <button class="back-btn" onclick="GP('home')">← ホームへ戻る</button>
     <div class="pt">📖 接客マニュアル</div>
@@ -1170,7 +1118,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </div>
 
 <!-- フロー詳細 -->
-<div class="pg" data-page="flow-detail" style="display:none;">
+<div class="pg" data-page="flow-detail">
   <div class="ph">
     <button class="back-btn" onclick="GP('flow')">← 一覧へ戻る</button>
     <div class="pt" id="flow-detail-title"></div>
@@ -1184,7 +1132,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 
-<div class="pg" data-page="detail-1" style="display:none;">
+<div class="pg" data-page="detail-1">
   <div class="ph">
     <button class="back-btn" onclick="GP('roleplay')">← ロープレ一覧へ戻る</button>
     <div class="pt">🥇 貴金属のロープレ（基本の型）</div>
@@ -1223,7 +1171,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <!-- 切り返しトーク集 -->
 
 
-<div class="pg" data-page="detail-2" style="display:none;">
+<div class="pg" data-page="detail-2">
   <div class="ph">
     <button class="back-btn" onclick="GP('roleplay')">← ロープレ一覧へ戻る</button>
     <div class="pt">📮 切手・テレカ・金券のロープレ</div>
@@ -1256,7 +1204,7 @@ document.addEventListener("DOMContentLoaded", function() {
     </ol>
   </div>
 </div>
-<div class="pg" data-page="detail-3" style="display:none;">
+<div class="pg" data-page="detail-3">
   <div class="ph">
     <button class="back-btn" onclick="GP('roleplay')">← ロープレ一覧へ戻る</button>
     <div class="pt">🤖 ホビーのロープレ</div>
@@ -1291,7 +1239,7 @@ document.addEventListener("DOMContentLoaded", function() {
     </ol>
   </div>
 </div>
-<div class="pg" data-page="detail-4" style="display:none;">
+<div class="pg" data-page="detail-4">
   <div class="ph">
     <button class="back-btn" onclick="GP('roleplay')">← ロープレ一覧へ戻る</button>
     <div class="pt">🪡 ミシンのロープレ</div>
@@ -1326,7 +1274,7 @@ document.addEventListener("DOMContentLoaded", function() {
     </ol>
   </div>
 </div>
-<div class="pg" data-page="detail-5" style="display:none;">
+<div class="pg" data-page="detail-5">
   <div class="ph">
     <button class="back-btn" onclick="GP('roleplay')">← ロープレ一覧へ戻る</button>
     <div class="pt">🏠 家具・家電のロープレ</div>
@@ -1359,7 +1307,7 @@ document.addEventListener("DOMContentLoaded", function() {
     </ol>
   </div>
 </div>
-<div class="pg" data-page="detail-6" style="display:none;">
+<div class="pg" data-page="detail-6">
   <div class="ph">
     <button class="back-btn" onclick="GP('roleplay')">← ロープレ一覧へ戻る</button>
     <div class="pt">🪙 記念硬貨・金貨・小判のロープレ</div>
@@ -1392,7 +1340,7 @@ document.addEventListener("DOMContentLoaded", function() {
     </ol>
   </div>
 </div>
-<div class="pg" data-page="detail-7" style="display:none;">
+<div class="pg" data-page="detail-7">
   <div class="ph">
     <button class="back-btn" onclick="GP('roleplay')">← ロープレ一覧へ戻る</button>
     <div class="pt">📷 カメラ・レンズのロープレ</div>
@@ -1428,7 +1376,7 @@ document.addEventListener("DOMContentLoaded", function() {
     </ol>
   </div>
 </div>
-<div class="pg" data-page="detail-8" style="display:none;">
+<div class="pg" data-page="detail-8">
   <div class="ph">
     <button class="back-btn" onclick="GP('roleplay')">← ロープレ一覧へ戻る</button>
     <div class="pt">👜 ブランド品のロープレ</div>
@@ -1465,7 +1413,7 @@ document.addEventListener("DOMContentLoaded", function() {
     </ol>
   </div>
 </div>
-<div class="pg" data-page="detail-9" style="display:none;">
+<div class="pg" data-page="detail-9">
   <div class="ph">
     <button class="back-btn" onclick="GP('roleplay')">← ロープレ一覧へ戻る</button>
     <div class="pt">🎁 贈答品のロープレ</div>
@@ -1498,7 +1446,7 @@ document.addEventListener("DOMContentLoaded", function() {
     </ol>
   </div>
 </div>
-<div class="pg" data-page="detail-10" style="display:none;">
+<div class="pg" data-page="detail-10">
   <div class="ph">
     <button class="back-btn" onclick="GP('roleplay')">← ロープレ一覧へ戻る</button>
     <div class="pt">🎵 オーディオのロープレ</div>
@@ -1531,7 +1479,7 @@ document.addEventListener("DOMContentLoaded", function() {
     </ol>
   </div>
 </div>
-<div class="pg" data-page="detail-11" style="display:none;">
+<div class="pg" data-page="detail-11">
   <div class="ph">
     <button class="back-btn" onclick="GP('roleplay')">← ロープレ一覧へ戻る</button>
     <div class="pt">⌚ 時計のロープレ</div>
@@ -1565,7 +1513,7 @@ document.addEventListener("DOMContentLoaded", function() {
     </ol>
   </div>
 </div>
-<div class="pg" data-page="detail-12" style="display:none;">
+<div class="pg" data-page="detail-12">
   <div class="ph">
     <button class="back-btn" onclick="GP('roleplay')">← ロープレ一覧へ戻る</button>
     <div class="pt">🖊️ 喫煙具・万年筆のロープレ</div>
@@ -1598,7 +1546,7 @@ document.addEventListener("DOMContentLoaded", function() {
     </ol>
   </div>
 </div>
-<div class="pg" data-page="detail-13" style="display:none;">
+<div class="pg" data-page="detail-13">
   <div class="ph">
     <button class="back-btn" onclick="GP('roleplay')">← ロープレ一覧へ戻る</button>
     <div class="pt">✨ メッキアクセサリー・小物のロープレ</div>
@@ -1638,7 +1586,7 @@ document.addEventListener("DOMContentLoaded", function() {
     </ol>
   </div>
 </div>
-<div class="pg" data-page="detail-14" style="display:none;">
+<div class="pg" data-page="detail-14">
   <div class="ph">
     <button class="back-btn" onclick="GP('roleplay')">← ロープレ一覧へ戻る</button>
     <div class="pt">💬 価格交渉・他店比較のロープレ</div>
@@ -1672,7 +1620,7 @@ document.addEventListener("DOMContentLoaded", function() {
     </ol>
   </div>
 </div>
-<div class="pg" data-page="detail-15" style="display:none;">
+<div class="pg" data-page="detail-15">
   <div class="ph">
     <button class="back-btn" onclick="GP('roleplay')">← ロープレ一覧へ戻る</button>
     <div class="pt">💍 ダイヤ・ジュエリーのロープレ</div>
@@ -1707,7 +1655,7 @@ document.addEventListener("DOMContentLoaded", function() {
     </ol>
   </div>
 </div>
-<div class="pg" data-page="detail-16" style="display:none;">
+<div class="pg" data-page="detail-16">
   <div class="ph">
     <button class="back-btn" onclick="GP('roleplay')">← ロープレ一覧へ戻る</button>
     <div class="pt">🏺 骨董品・遺品整理のロープレ</div>
@@ -1742,7 +1690,7 @@ document.addEventListener("DOMContentLoaded", function() {
     </ol>
   </div>
 </div>
-<div class="pg" data-page="detail-17" style="display:none;">
+<div class="pg" data-page="detail-17">
   <div class="ph">
     <button class="back-btn" onclick="GP('roleplay')">← ロープレ一覧へ戻る</button>
     <div class="pt">🎸 楽器のロープレ</div>
@@ -1783,7 +1731,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 <!-- ロープレ履歴ページ -->
-<div class="pg" data-page="rp-history" style="display:none;">
+<div class="pg" data-page="rp-history">
   <div class="ph">
     <button class="back-btn" onclick="GP('home')">← ホームへ戻る</button>
     <div class="pt">📊 ロープレ成績</div>
@@ -1795,7 +1743,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </div>
 
 <!-- AIロープレ -->
-<div class="pg" data-page="rp-mode" style="display:none;">
+<div class="pg" data-page="rp-mode">
   <div class="ph">
     <button class="back-btn" id="rp-back-btn" onclick="rpBackBtn()">← ホームへ戻る</button>
     <div class="pt">🎭 AIロープレ</div>
@@ -6228,16 +6176,13 @@ function renderSearchResults(q, lower) {
 
 function GP(page) {
   var all = document.querySelectorAll('.pg');
-  for (var i = 0; i < all.length; i++) {
-    all[i].classList.remove('on');
-    all[i].style.display = 'none';
-  }
+  for (var i = 0; i < all.length; i++) all[i].classList.remove('on');
   var el = document.querySelector('[data-page="' + page + '"]');
-  if (el) { el.classList.add('on'); el.style.display = 'block'; }
+  if (el) el.classList.add('on');
   if (page === 'roleplay') { _talkCatId = null; initTalkCats(); renderTalkList(); }
   if (page === 'price') { initPriceCats(); RP(); }
   if (page === 'video') renderVideoList();
-  if (page === 'chat') { initChat(); if (el) el.style.display = 'flex'; }
+  if (page === 'chat') initChat();
   if (page === 'glossary') { initGlossaryCats(); renderGlossary(); }
   if (page === 'flow') { initFlowCats(); renderFlowList(); }
   if (page === 'visit-check') initVisitCheck();
@@ -7008,19 +6953,13 @@ function renderExtraManuals() {
 if (!localStorage.getItem('hanamaru_gemini_key')) {
   // APIキーは初回入力で保存されます
 }
-function initApp() {
+document.addEventListener('DOMContentLoaded', function() {
   GP('home');
   renderExtraManuals();
-  if (typeof initSupabase === 'function') initSupabase();
-}
 
-// DOMが準備できたら実行
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
-} else {
-  // 既にDOM準備完了
-  setTimeout(initApp, 0);
-}
+  // Supabase初期化
+  initSupabase();
+});
 
 // ===== ロープレ：AIシナリオ検索 =====
 // ===== Gemini Audio 音声入力 =====
@@ -7878,20 +7817,6 @@ function initReview() {
   rvSwitchTab('new');
 }
 
-function rvSetResult(val, btn) {
-  document.getElementById('rv-outcome').value = val;
-  document.querySelectorAll('.rv-result-btn').forEach(function(b) {
-    b.style.background = 'var(--sf)';
-    b.style.color = 'var(--tx)';
-    b.style.borderColor = 'var(--bd)';
-    b.style.fontWeight = '400';
-  });
-  btn.style.background = 'var(--nv)';
-  btn.style.color = '#fff';
-  btn.style.borderColor = 'var(--nv)';
-  btn.style.fontWeight = '700';
-}
-
 function rvSwitchTab(tab) {
   _rvCurrentTab = tab;
   var tabs = { new: 'new', history: 'history' };
@@ -7920,32 +7845,31 @@ async function rvAnalyze() {
 
   // TALK_DATAから全カテゴリ名を収集
   var talkCats = TALK_DATA.map(function(c) { return c.cat; }).join('、');
-  var outcome = document.getElementById('rv-outcome').value || '未選択';
 
-  var prompt = 'あなたは買取・リユース業の出張買取スタッフ向け振り返り支援AIです。\n' +
-    '以下は出張買取の接客の文字起こしです。以下の形式でJSONのみ返してください。\n\n' +
-    '{\n' +
-    '  "good": "良かった点（箇条書き・改行区切り）",\n' +
-    '  "bad": "改善が必要な点（箇条書き・改行区切り）",\n' +
-    '  "talks": [{"scene": "場面の説明", "talk": "使えた切り返しトーク"}],\n' +
-    '  "compliance": {\n' +
-    '    "告知": "OK/NG/不十分 + 一言コメント",\n' +
-    '    "クーリングオフ": "OK/NG/不十分 + 一言コメント",\n' +
-    '    "書面交付": "OK/NG/不十分 + 一言コメント",\n' +
-    '    "押し買い": "OK/NG/不十分 + 一言コメント"\n' +
-    '  },\n' +
-    '  "advice": "次回への一言アドバイス（2〜3文）",\n' +
-    '  "revisit": {\n' +
-    '    "possibility": "高/中/低",\n' +
-    '    "reason": "判断理由（会話中の具体的な発言から・2〜3文）",\n' +
-    '    "uncovered": ["未掘り起こしカテゴリ名"],\n' +
-    '    "next_action": "次回のアプローチ方法（具体的に・2〜3文）"\n' +
-    '  }\n' +
-    '}\n\n' +
-    '【talks】は最大3件。以下のカテゴリを参照：' + talkCats + '\n' +
-    '【compliance】は出張買取4項目をチェック。OK=実施済み、NG=未実施、不十分=不十分\n' +
-    '【revisit】今回の結果は「' + outcome + '」。会話から再訪問・アポ獲得の可能性と未掘り起こし品目を分析してください。\n' +
-    '【文字起こし】\n' + text;
+  var prompt = `あなたは買取・リユース業の出張買取スタッフ向け振り返り支援AIです。
+以下は出張買取の接客の文字起こしです。以下の形式でJSONのみ返してください（コードブロック・前後テキスト不要）。
+
+{
+  "good": "良かった点（箇条書き・改行区切り）",
+  "bad": "改善が必要な点（箇条書き・改行区切り）",
+  "talks": [
+    {"scene": "場面の説明", "talk": "使えた切り返しトーク"}
+  ],
+  "compliance": {
+    "告知": "✅/❌/⚠️ + 一言コメント",
+    "クーリングオフ": "✅/❌/⚠️ + 一言コメント",
+    "書面交付": "✅/❌/⚠️ + 一言コメント",
+    "押し買い": "✅/❌/⚠️ + 一言コメント"
+  },
+  "advice": "次回への一言アドバイス（2〜3文）"
+}
+
+【talks】は最大3件。以下のカテゴリを参照：${talkCats}
+【compliance】は出張買取4項目（訪問目的・業者名の告知 / クーリングオフ説明 / 書面交付 / 押し買い禁止）をチェック。
+✅=実施済み、❌=未実施、⚠️=不十分
+
+【文字起こし】
+${text}`;
 
   try {
     var res = await fetch(
@@ -8022,35 +7946,6 @@ function rvRenderResult(r) {
   // アドバイス
   var advEl = document.getElementById('rv-advice');
   if (advEl) advEl.textContent = r.advice || '';
-
-  // 再訪問・アポ可能性
-  var revisit = r.revisit || {};
-  var outcome = document.getElementById('rv-outcome').value || '';
-  var outcomeDisplay = document.getElementById('rv-outcome-display');
-  if (outcomeDisplay && outcome) {
-    var outcomeColors = { '成約': ['#E8F5E9','#1A7A4A'], '保留': ['#FFF8E1','#E87000'], '不成約': ['#FDECEA','#C0392B'] };
-    var oc = outcomeColors[outcome] || ['var(--sf)','var(--tx)'];
-    outcomeDisplay.textContent = outcome;
-    outcomeDisplay.style.background = oc[0];
-    outcomeDisplay.style.color = oc[1];
-  }
-  var poss = revisit.possibility || '';
-  var possMap = { '高': ['#1A7A4A', '75%'], '中': ['#E87000', '45%'], '低': ['#C0392B', '15%'] };
-  var pm = possMap[poss] || ['var(--mu)', '0%'];
-  var labelEl = document.getElementById('rv-revisit-label');
-  var barEl = document.getElementById('rv-revisit-bar');
-  if (labelEl) { labelEl.textContent = poss; labelEl.style.color = pm[0]; }
-  if (barEl) { barEl.style.background = pm[0]; barEl.style.width = pm[1]; }
-  var reasonEl = document.getElementById('rv-revisit-reason');
-  if (reasonEl) reasonEl.textContent = revisit.reason || '';
-  var uncoveredEl = document.getElementById('rv-uncovered');
-  if (uncoveredEl) {
-    uncoveredEl.innerHTML = (revisit.uncovered || []).map(function(cat) {
-      return '<span style="background:#EEF2FF;color:#1B3A6B;font-size:12px;padding:3px 10px;border-radius:6px;">' + srEsc(cat) + '</span>';
-    }).join('');
-  }
-  var nextEl = document.getElementById('rv-next-action');
-  if (nextEl) nextEl.textContent = revisit.next_action || '';
 
   document.getElementById('rv-result').style.display = 'block';
   window.scrollTo(0, 0);
@@ -8155,16 +8050,8 @@ function rvReset() {
   _rvCurrentResult = null;
   var memoEl = document.getElementById('rv-memo');
   var textEl = document.getElementById('rv-text');
-  var outcomeEl = document.getElementById('rv-outcome');
   if (memoEl) memoEl.value = '';
   if (textEl) textEl.value = '';
-  if (outcomeEl) outcomeEl.value = '';
-  document.querySelectorAll('.rv-result-btn').forEach(function(b) {
-    b.style.background = 'var(--sf)';
-    b.style.color = 'var(--tx)';
-    b.style.borderColor = 'var(--bd)';
-    b.style.fontWeight = '400';
-  });
   document.getElementById('rv-result').style.display = 'none';
   document.getElementById('rv-loading').style.display = 'none';
   document.getElementById('rv-analyze-btn').style.display = 'block';
