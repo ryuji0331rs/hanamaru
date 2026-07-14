@@ -358,6 +358,12 @@ body{font-family:-apple-system,'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;b
 </script>
 </head>
 <body>
+<script>
+// 最優先でhomeを表示（イベント待ちなし）
+document.addEventListener("DOMContentLoaded", function() {
+  if (typeof GP === "function") GP("home");
+});
+</script>
 <div class="topbar" style="display:flex;align-items:center;justify-content:space-between;"><div class="tl"><span class="mk">華</span>買取支援ツール</div>
 <button onclick="GP('admin-login')" style="background:rgba(255,255,255,.18);color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:14px;cursor:pointer;">⚙️ 管理</button>
 </div>
@@ -7005,20 +7011,16 @@ if (!localStorage.getItem('hanamaru_gemini_key')) {
 function initApp() {
   GP('home');
   renderExtraManuals();
+  if (typeof initSupabase === 'function') initSupabase();
 }
 
-// 複数のタイミングで確実に初期化
+// DOMが準備できたら実行
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initApp);
 } else {
-  initApp();
+  // 既にDOM準備完了
+  setTimeout(initApp, 0);
 }
-window.addEventListener('load', function() {
-  var home = document.querySelector('[data-page="home"]');
-  if (home && !home.classList.contains('on')) {
-    initApp();
-  }
-});
 
 // ===== ロープレ：AIシナリオ検索 =====
 // ===== Gemini Audio 音声入力 =====
