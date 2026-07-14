@@ -7904,15 +7904,13 @@ function rvRenderResult(r) {
 
   // 良かった点
   var goodEl = document.getElementById('rv-good');
-  if (goodEl) goodEl.innerHTML = (r.good || '').split('
-').filter(Boolean).map(function(l) {
+  if (goodEl) goodEl.innerHTML = (r.good || '').split('\n').filter(Boolean).map(function(l) {
     return '<div style="display:flex;gap:6px;margin-bottom:4px;"><span style="color:#1A7A4A;flex-shrink:0;">•</span><span>' + srEsc(l.replace(/^[・•\-]\s*/, '')) + '</span></div>';
   }).join('');
 
   // ダメだった点
   var badEl = document.getElementById('rv-bad');
-  if (badEl) badEl.innerHTML = (r.bad || '').split('
-').filter(Boolean).map(function(l) {
+  if (badEl) badEl.innerHTML = (r.bad || '').split('\n').filter(Boolean).map(function(l) {
     return '<div style="display:flex;gap:6px;margin-bottom:4px;"><span style="color:var(--rd);flex-shrink:0;">•</span><span>' + srEsc(l.replace(/^[・•\-]\s*/, '')) + '</span></div>';
   }).join('');
 
