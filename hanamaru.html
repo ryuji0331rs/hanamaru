@@ -7853,23 +7853,7 @@ function vcPrint() {
   win.document.write('<style>body{font-family:Meiryo,sans-serif;margin:20px;font-size:13px;} @media print{body{margin:10px;}}</style>');
   win.document.write('</head><body>');
   win.document.write(sheet.outerHTML);
-  win.document.write('<script>
-// フォールバック：ページ読み込み完了時に確実にhomeを表示
-(function() {
-  function showHome() {
-    var all = document.querySelectorAll('.pg');
-    for (var i = 0; i < all.length; i++) all[i].classList.remove('on');
-    var home = document.querySelector('[data-page="home"]');
-    if (home) home.classList.add('on');
-  }
-  if (typeof GP === 'function') {
-    GP('home');
-  } else {
-    showHome();
-  }
-})();
-</script>
-</body></html>');
+  win.document.write('</body></html>');
   win.document.close();
   win.focus();
   setTimeout(function(){ win.print(); }, 500);
