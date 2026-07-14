@@ -385,7 +385,7 @@ body{font-family:-apple-system,'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;b
   </div>
 </div>
 
-<div class="pg on" data-page="home" style="padding:0;background:#F4F6FB;min-height:100%;">
+<div class="pg" data-page="home" style="padding:0;background:#F4F6FB;min-height:100%;">
 
   <div style="position:relative;overflow:hidden;background:linear-gradient(160deg,#EEF2FF 0%,#E8F4FD 40%,#EDF9F4 100%);padding:36px 28px 32px;">
     <!-- スタッフバッジ -->
@@ -7001,11 +7001,18 @@ function initApp() {
   initSupabase();
 }
 
+// 複数のタイミングで確実に初期化
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initApp);
 } else {
   initApp();
 }
+window.addEventListener('load', function() {
+  var home = document.querySelector('[data-page="home"]');
+  if (home && !home.classList.contains('on')) {
+    initApp();
+  }
+});
 
 // ===== ロープレ：AIシナリオ検索 =====
 // ===== Gemini Audio 音声入力 =====
@@ -7843,7 +7850,23 @@ function vcPrint() {
   win.document.write('<style>body{font-family:Meiryo,sans-serif;margin:20px;font-size:13px;} @media print{body{margin:10px;}}</style>');
   win.document.write('</head><body>');
   win.document.write(sheet.outerHTML);
-  win.document.write('</body></html>');
+  win.document.write('<script>
+// フォールバック：ページ読み込み完了時に確実にhomeを表示
+(function() {
+  function showHome() {
+    var all = document.querySelectorAll('.pg');
+    for (var i = 0; i < all.length; i++) all[i].classList.remove('on');
+    var home = document.querySelector('[data-page="home"]');
+    if (home) home.classList.add('on');
+  }
+  if (typeof GP === 'function') {
+    GP('home');
+  } else {
+    showHome();
+  }
+})();
+</script>
+</body></html>');
   win.document.close();
   win.focus();
   setTimeout(function(){ win.print(); }, 500);
